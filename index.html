@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>گلس آلما - سیستم مدیریت</title>
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', Tahoma, sans-serif; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #312e81 100%);
+    color: #e2e8f0;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 20% 30%, rgba(99,102,241,0.15), transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(236,72,153,0.12), transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+  header {
+    text-align: center;
+    padding: 25px 20px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  header h1 {
+    font-size: 32px;
+    background: linear-gradient(90deg, #60a5fa, #c084fc, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    font-weight: 800;
+  }
+  header p { color: #94a3b8; font-size: 14px; }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    background: rgba(255,255,255,0.04);
+    padding: 10px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .tab {
+    flex: 1;
+    min-width: 120px;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    color: #cbd5e1;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+  .tab:hover { background: rgba(255,255,255,0.06); }
+  .tab.active {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    box-shadow: 0 4px 15px rgba(99,102,241,0.4);
+  }
+
+  .panel {
+    display: none;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 25px;
+    animation: fadeIn 0.4s ease;
+  }
+  .panel.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .panel-title::before {
+    content: '';
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(180deg, #60a5fa, #c084fc);
+    border-radius: 2px;
+  }
+
+  .search-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 600px) { .search-row { grid-template-columns: 1fr; } }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(15,23,42,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #e2e8f0;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+  }
+  input::placeholder { color: #64748b; }
+
+  .btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99,102,241,0.4); }
+  .btn-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+  }
+  .btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+  .btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+  }
+  .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239,68,68,0.4); }
+  .btn-ghost {
+    background: rgba(255,255,255,0.06);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 15px;
+  }
+  @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+  .boxes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+  }
+  .box-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 18px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .box-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #60a5fa, #c084fc);
+  }
+  .box-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(99,102,241,0.4);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  }
+  .box-card.low-stock { border-color: rgba(239,68,68,0.4); }
+  .box-card.low-stock::before { background: linear-gradient(90deg, #ef4444, #f97316); }
+
+  .box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .box-num {
+    font-size: 18px;
+    font-weight: 700;
+    color: #60a5fa;
+  }
+  .box-stock {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .stock-ok { background: rgba(16,185,129,0.15); color: #34d399; }
+  .stock-low { background: rgba(239,68,68,0.15); color: #f87171; }
+  .stock-out { background: rgba(239,68,68,0.3); color: #fca5a5; }
+
+  .box-models {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .model-tag {
+    padding: 4px 10px;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 20px;
+    font-size: 11px;
+    color: #c7d2fe;
+  }
+  .box-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .stat-card:hover { transform: translateY(-3px); border-color: rgba(99,102,241,0.4); }
+  .stat-label { color: #94a3b8; font-size: 13px; margin-bottom: 8px; }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #60a5fa, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .log-list {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-left: 5px;
+  }
+  .log-list::-webkit-scrollbar { width: 6px; }
+  .log-list::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
+  .log-list::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.5); border-radius: 3px; }
+
+  .log-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+  }
+  .log-item:hover { background: rgba(255,255,255,0.06); }
+  .log-type {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .log-sale { background: rgba(239,68,68,0.15); color: #f87171; }
+  .log-recharge { background: rgba(16,185,129,0.15); color: #34d399; }
+  .log-info { flex: 1; margin: 0 15px; font-size: 13px; }
+  .log-date { color: #94a3b8; font-size: 12px; }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; animation: fadeIn 0.3s; }
+  .modal {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 25px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal::-webkit-scrollbar { width: 6px; }
+  .modal::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.5); border-radius: 3px; }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .modal-title { font-size: 18px; font-weight: 600; }
+  .close-btn {
+    background: rgba(239,68,68,0.15);
+    color: #f87171;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s;
+  }
+  .close-btn:hover { background: rgba(239,68,68,0.3); }
+
+  .sort-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+  }
+  .sort-btn {
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #cbd5e1;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .sort-btn:hover { background: rgba(99,102,241,0.2); }
+  .sort-btn.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border-color: transparent; }
+
+  .result-box {
+    padding: 20px;
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 12px;
+    margin-top: 15px;
+  }
+  .result-box h4 { color: #c7d2fe; margin-bottom: 10px; font-size: 14px; }
+  .result-box .model-tag { margin: 3px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #64748b;
+  }
+  .empty-state-icon { font-size: 48px; margin-bottom: 10px; opacity: 0.5; }
+
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    z-index: 200;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(10px); }
+  .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+  }
+  .filter-bar input, .filter-bar select { flex: 1; min-width: 150px; }
+
+  .new-box-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.08));
+    border: 2px dashed rgba(99,102,241,0.3);
+    border-radius: 16px;
+    transition: all 0.3s;
+  }
+  .new-box-section:hover {
+    border-color: rgba(99,102,241,0.5);
+    background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.12));
+  }
+  .new-box-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #c7d2fe;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .new-box-title::before {
+    content: '✨';
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>📱 گلس آلما</h1>
+    <p>سیستم مدیریت موجودی و فروش گلس گوشی</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="inventory">📦 موجودی</button>
+    <button class="tab" data-tab="sale">💰 فروش</button>
+    <button class="tab" data-tab="recharge">🔋 شارژ</button>
+    <button class="tab" data-tab="stats">📊 آمار</button>
+    <button class="tab" data-tab="log">📜 لاگ</button>
+  </div>
+
+  <!-- INVENTORY PANEL -->
+  <div class="panel active" id="panel-inventory">
+    <div class="panel-title">مدیریت جعبه‌ها</div>
+
+    <div class="search-row">
+      <input type="text" id="searchModel" placeholder="🔍 جستجوی مدل گوشی (مثلا A10)..." />
+      <input type="text" id="searchBox" placeholder="🔍 جستجوی شماره جعبه (مثلا 10)..." />
+    </div>
+
+    <div id="searchResult"></div>
+
+    <div class="new-box-section">
+      <div class="new-box-title">ثبت جعبه جدید</div>
+      <div class="form-row">
+        <input type="number" id="boxNumber" placeholder="شماره جعبه (1 تا 60)" min="1" max="60"/>
+        <input type="number" id="boxStock" placeholder="موجودی اولیه" min="0"/>
+      </div>
+      <div class="form-row">
+        <input type="text" id="boxModels" placeholder="مدل‌ها (با کاما جدا کنید: A10, A11, Note 12 Pro)"/>
+        <select id="boxBrand">
+          <option value="">برند (اختیاری)</option>
+          <option value="سامسونگ">سامسونگ</option>
+          <option value="شیائومی">شیائومی</option>
+          <option value="هواوی">هواوی</option>
+          <option value="آیفون">آیفون</option>
+          <option value="سایر">سایر</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="saveBox()">💾 ثبت جعبه</button>
+    </div>
+
+    <div class="filter-bar" style="margin-top:20px;">
+      <input type="text" id="filterText" placeholder="🔎 فیلتر در لیست..."/>
+      <select id="filterBrand">
+        <option value="">همه برندها</option>
+        <option value="سامسونگ">سامسونگ</option>
+        <option value="شیائومی">شیائومی</option>
+        <option value="هواوی">هواوی</option>
+        <option value="آیفون">آیفون</option>
+        <option value="سایر">سایر</option>
+      </select>
+      <select id="filterStock">
+        <option value="">همه وضعیت‌ها</option>
+        <option value="low">کم موجود (≤5)</option>
+        <option value="out">تمام شده</option>
+        <option value="ok">موجود</option>
+      </select>
+    </div>
+
+    <div class="boxes-grid" id="boxesGrid"></div>
+  </div>
+
+  <!-- SALE PANEL -->
+  <div class="panel" id="panel-sale">
+    <div class="panel-title">ثبت فروش</div>
+    <div class="form-row">
+      <select id="saleBox">
+        <option value="">-- انتخاب جعبه --</option>
+      </select>
+      <select id="saleModel">
+        <option value="">-- انتخاب مدل --</option>
+      </select>
+    </div>
+    <input type="number" id="saleQty" placeholder="تعداد فروش" min="1" value="1" style="margin-bottom:15px;"/>
+    <button class="btn btn-success" onclick="registerSale()">✅ ثبت فروش</button>
+    <div id="saleInfo" style="margin-top:15px;"></div>
+  </div>
+
+  <!-- RECHARGE PANEL -->
+  <div class="panel" id="panel-recharge">
+    <div class="panel-title">شارژ موجودی</div>
+    <div class="form-row">
+      <select id="rechargeBox">
+        <option value="">-- انتخاب جعبه --</option>
+      </select>
+      <input type="number" id="rechargeQty" placeholder="تعداد شارژ" min="1" value="10"/>
+    </div>
+    <button class="btn btn-success" onclick="registerRecharge()">🔋 ثبت شارژ</button>
+  </div>
+
+  <!-- STATS PANEL -->
+  <div class="panel" id="panel-stats">
+    <div class="panel-title">آمار و گزارشات</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">فروش امروز</div>
+        <div class="stat-value" id="statToday">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">فروش دیروز</div>
+        <div class="stat-value" id="statYesterday">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">فروش این هفته</div>
+        <div class="stat-value" id="statWeek">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">فروش این ماه</div>
+        <div class="stat-value" id="statMonth">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">کل فروش</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">کل موجودی</div>
+        <div class="stat-value" id="statStock">0</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="openStatsModal()">📋 مشاهده جزئیات مرتب‌سازی شده</button>
+  </div>
+
+  <!-- LOG PANEL -->
+  <div class="panel" id="panel-log">
+    <div class="panel-title">لاگ تراکنش‌ها</div>
+    <div class="filter-bar">
+      <select id="logFilter">
+        <option value="">همه تراکنش‌ها</option>
+        <option value="sale">فروش‌ها</option>
+        <option value="recharge">شارژها</option>
+      </select>
+      <input type="text" id="logSearch" placeholder="🔍 جستجو در لاگ..."/>
+      <button class="btn btn-danger btn-sm" onclick="clearLog()">🗑️ پاک کردن لاگ</button>
+    </div>
+    <div class="log-list" id="logList"></div>
+  </div>
+</div>
+
+<!-- STATS MODAL -->
+<div class="modal-overlay" id="statsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📋 جزئیات موجودی و فروش</div>
+      <button class="close-btn" onclick="closeModal('statsModal')">×</button>
+    </div>
+    <div class="sort-controls">
+      <button class="sort-btn active" data-sort="stock-desc" onclick="sortStats('stock-desc')">موجودی ↓</button>
+      <button class="sort-btn" data-sort="stock-asc" onclick="sortStats('stock-asc')">موجودی ↑</button>
+      <button class="sort-btn" data-sort="sales-desc" onclick="sortStats('sales-desc')">فروش ↓</button>
+      <button class="sort-btn" data-sort="sales-asc" onclick="sortStats('sales-asc')">فروش ↑</button>
+    </div>
+    <div id="statsList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ============ API FUNCTIONS ============
+  const API_BASE = 'http://localhost:3000/api';
+
+  async function api(endpoint, method = 'GET', body = null) {
+    const options = {
+      method,
+      headers: { 'Content-Type': 'application/json' }
+    };
+    if (body) options.body = JSON.stringify(body);
+    
+    const response = await fetch(API_BASE + endpoint, options);
+    return response.json();
+  }
+
+  // ============ DATA ============
+  let boxes = [];
+  let sales = [];
+  let recharges = [];
+  let logs = [];
+
+  async function loadData() {
+    boxes = await api('/boxes');
+    sales = await api('/sales');
+    recharges = await api('/recharges');
+    logs = await api('/logs');
+    renderAll();
+  }
+
+  // ============ UTILS ============
+  function toast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (type === 'error' ? ' error' : '');
+    setTimeout(() => t.className = 'toast', 2500);
+  }
+
+  function faDate(d = new Date()) {
+    return d.toLocaleDateString('fa-IR');
+  }
+  function faTime(d = new Date()) {
+    return d.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+  }
+  function faDateTime(d = new Date()) {
+    return faDate(d) + ' - ' + faTime(d);
+  }
+
+  async function addLog(type, info) {
+    await api('/logs', 'POST', { type, info });
+  }
+
+  // ============ TABS ============
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+      if (tab.dataset.tab === 'stats') loadStats();
+      if (tab.dataset.tab === 'log') renderLog();
+    });
+  });
+
+  // ============ BOXES ============
+  async function saveBox() {
+    const num = parseInt(document.getElementById('boxNumber').value);
+    const stock = parseInt(document.getElementById('boxStock').value);
+    const modelsRaw = document.getElementById('boxModels').value.trim();
+    const brand = document.getElementById('boxBrand').value;
+
+    if (!num || num < 1 || num > 60) return toast('شماره جعبه باید بین 1 تا 60 باشد', 'error');
+    if (isNaN(stock) || stock < 0) return toast('موجودی نامعتبر', 'error');
+    if (!modelsRaw) return toast('حداقل یک مدل وارد کنید', 'error');
+
+    const models = modelsRaw.split(/[,،]/).map(m => m.trim()).filter(Boolean);
+    
+    const result = await api('/boxes', 'POST', { number: num, models, stock, brand });
+    
+    if (result.success) {
+      await addLog('edit', `ویرایش جعبه ${num} - مدل‌ها: ${models.join(', ')}`);
+      toast(result.message);
+      
+      document.getElementById('boxNumber').value = '';
+      document.getElementById('boxStock').value = '';
+      document.getElementById('boxModels').value = '';
+      document.getElementById('boxBrand').value = '';
+      
+      await loadData();
+    }
+  }
+
+  async function deleteBox(num) {
+    if (!confirm(`آیا از حذف جعبه ${num} مطمئن هستید؟`)) return;
+    
+    const result = await api(`/boxes/${num}`, 'DELETE');
+    if (result.success) {
+      await addLog('delete', `حذف جعبه ${num}`);
+      toast('جعبه حذف شد');
+      await loadData();
+    }
+  }
+
+  function editBox(num) {
+    const b = boxes.find(x => x.number === num);
+    if (!b) return;
+    document.getElementById('boxNumber').value = b.number;
+    document.getElementById('boxStock').value = b.stock;
+    document.getElementById('boxModels').value = b.models.join(', ');
+    document.getElementById('boxBrand').value = b.brand || '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderBoxes() {
+    const grid = document.getElementById('boxesGrid');
+    const filterText = document.getElementById('filterText').value.toLowerCase();
+    const filterBrand = document.getElementById('filterBrand').value;
+    const filterStock = document.getElementById('filterStock').value;
+
+    let filtered = boxes.filter(b => {
+      if (filterText && !b.models.some(m => m.toLowerCase().includes(filterText)) && !String(b.number).includes(filterText)) return false;
+      if (filterBrand && b.brand !== filterBrand) return false;
+      if (filterStock === 'low' && b.stock > 5) return false;
+      if (filterStock === 'out' && b.stock > 0) return false;
+      if (filterStock === 'ok' && b.stock <= 5) return false;
+      return true;
+    });
+
+    filtered.sort((a,b) => a.number - b.number);
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+        <div class="empty-state-icon">📦</div>
+        <p>هیچ جعبه‌ای ثبت نشده است</p>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(b => {
+      let stockClass = 'stock-ok', stockLabel = 'موجود';
+      if (b.stock === 0) { stockClass = 'stock-out'; stockLabel = 'تمام'; }
+      else if (b.stock <= 5) { stockClass = 'stock-low'; stockLabel = 'کم'; }
+      const cardClass = b.stock <= 5 ? 'box-card low-stock' : 'box-card';
+      return `
+        <div class="${cardClass}">
+          <div class="box-header">
+            <div class="box-num">جعبه ${b.number}</div>
+            <div class="box-stock ${stockClass}">${stockLabel} (${b.stock})</div>
+          </div>
+          ${b.brand ? `<div style="font-size:11px;color:#94a3b8;margin-bottom:8px;">🏷️ ${b.brand}</div>` : ''}
+          <div class="box-models">
+            ${b.models.map(m => `<span class="model-tag">${m}</span>`).join('')}
+          </div>
+          <div style="font-size:11px;color:#64748b;margin-bottom:10px;">فروش کل: ${b.totalSold || 0}</div>
+          <div class="box-actions">
+            <button class="btn btn-ghost btn-sm" onclick="editBox(${b.number})">✏️ ویرایش</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteBox(${b.number})">🗑️ حذف</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ============ SEARCH ============
+  document.getElementById('searchModel').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    const res = document.getElementById('searchResult');
+    if (!q) { res.innerHTML = ''; return; }
+    const matches = boxes.filter(b => b.models.some(m => m.toLowerCase().includes(q)));
+    if (matches.length === 0) {
+      res.innerHTML = `<div class="result-box"><h4>❌ نتیجه‌ای یافت نشد</h4></div>`;
+      return;
+    }
+    res.innerHTML = `<div class="result-box">
+      <h4>✅ مدل "${q}" در جعبه‌های زیر موجود است:</h4>
+      ${matches.map(b => `
+        <div style="margin:8px 0;padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;">
+          <strong style="color:#60a5fa;">جعبه ${b.number}</strong>
+          <span style="color:#94a3b8;font-size:12px;margin-right:10px;">موجودی: ${b.stock}</span>
+          <div style="margin-top:5px;">${b.models.map(m => `<span class="model-tag">${m}</span>`).join(' ')}</div>
+        </div>
+      `).join('')}
+    </div>`;
+  });
+
+  document.getElementById('searchBox').addEventListener('input', e => {
+    const q = e.target.value.trim();
+    const res = document.getElementById('searchResult');
+    if (!q) { res.innerHTML = ''; return; }
+    const b = boxes.find(x => String(x.number) === q);
+    if (!b) {
+      res.innerHTML = `<div class="result-box"><h4>❌ جعبه ${q} یافت نشد</h4></div>`;
+      return;
+    }
+    res.innerHTML = `<div class="result-box">
+      <h4>✅ جعبه ${b.number} به گوشی‌های زیر می‌خورد:</h4>
+      <div style="margin-top:8px;">${b.models.map(m => `<span class="model-tag">${m}</span>`).join(' ')}</div>
+      <div style="margin-top:10px;color:#94a3b8;font-size:13px;">
+        موجودی: <strong style="color:#34d399;">${b.stock}</strong> |
+        برند: <strong>${b.brand || 'نامشخص'}</strong>
+      </div>
+    </div>`;
+  });
+
+  // ============ FILTERS ============
+  ['filterText','filterBrand','filterStock'].forEach(id => {
+    document.getElementById(id).addEventListener('input', renderBoxes);
+    document.getElementById(id).addEventListener('change', renderBoxes);
+  });
+
+  // ============ SALE ============
+  function renderBoxSelectors() {
+    const saleBox = document.getElementById('saleBox');
+    const rechargeBox = document.getElementById('rechargeBox');
+    const opts = boxes.sort((a,b) => a.number - b.number).map(b =>
+      `<option value="${b.number}">جعبه ${b.number} - ${b.models[0]} (${b.stock})</option>`
+    ).join('');
+    saleBox.innerHTML = '<option value="">-- انتخاب جعبه --</option>' + opts;
+    rechargeBox.innerHTML = '<option value="">-- انتخاب جعبه --</option>' + opts;
+  }
+
+  document.getElementById('saleBox').addEventListener('change', e => {
+    const num = parseInt(e.target.value);
+    const b = boxes.find(x => x.number === num);
+    const modelSel = document.getElementById('saleModel');
+    if (!b) { modelSel.innerHTML = '<option value="">-- انتخاب مدل --</option>'; return; }
+    modelSel.innerHTML = b.models.map(m => `<option value="${m}">${m}</option>`).join('');
+    document.getElementById('saleInfo').innerHTML = `
+      <div style="padding:12px;background:rgba(99,102,241,0.1);border-radius:10px;font-size:13px;">
+        موجودی فعلی: <strong>${b.stock}</strong> | مدل‌های این جعبه: ${b.models.join('، ')}
+      </div>`;
+  });
+
+  async function registerSale() {
+    const num = parseInt(document.getElementById('saleBox').value);
+    const model = document.getElementById('saleModel').value;
+    const qty = parseInt(document.getElementById('saleQty').value);
+
+    if (!num) return toast('جعبه را انتخاب کنید', 'error');
+    if (!qty || qty < 1) return toast('تعداد نامعتبر', 'error');
+
+    const result = await api('/sales', 'POST', { boxNumber: num, model, quantity: qty });
+    
+    if (result.success) {
+      await addLog('sale', `فروش ${qty} عدد ${model} از جعبه ${num}`);
+      toast(`فروش ${qty} عدد ${model} ثبت شد`);
+      
+      document.getElementById('saleQty').value = 1;
+      await loadData();
+      document.getElementById('saleBox').dispatchEvent(new Event('change'));
+    } else {
+      toast(result.message, 'error');
+    }
+  }
+
+  // ============ RECHARGE ============
+  async function registerRecharge() {
+    const num = parseInt(document.getElementById('rechargeBox').value);
+    const qty = parseInt(document.getElementById('rechargeQty').value);
+
+    if (!num) return toast('جعبه را انتخاب کنید', 'error');
+    if (!qty || qty < 1) return toast('تعداد نامعتبر', 'error');
+
+    const result = await api('/recharges', 'POST', { boxNumber: num, quantity: qty });
+    
+    if (result.success) {
+      await addLog('recharge', `شارژ ${qty} عدد به جعبه ${num}`);
+      toast(`شارژ ${qty} عدد برای جعبه ${num} ثبت شد`);
+      await loadData();
+    } else {
+      toast(result.message, 'error');
+    }
+  }
+
+  // ============ STATS ============
+  async function loadStats() {
+    const stats = await api('/stats');
+    document.getElementById('statToday').textContent = stats.today;
+    document.getElementById('statYesterday').textContent = stats.yesterday;
+    document.getElementById('statWeek').textContent = stats.week;
+    document.getElementById('statMonth').textContent = stats.month;
+    document.getElementById('statTotal').textContent = stats.total;
+    document.getElementById('statStock').textContent = stats.stock;
+  }
+
+  function openStatsModal() {
+    document.getElementById('statsModal').classList.add('active');
+    sortStats('stock-desc');
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+  }
+  document.getElementById('statsModal').addEventListener('click', e => {
+    if (e.target.id === 'statsModal') closeModal('statsModal');
+  });
+
+  function sortStats(mode) {
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === mode));
+    let dataCopy = boxes.map(b => {
+      const totalSold = sales.filter(s => s.boxNumber === b.number).reduce((a,s) => a + s.quantity, 0);
+      return { ...b, totalSold };
+    });
+
+    if (mode === 'stock-desc') dataCopy.sort((a,b) => b.stock - a.stock);
+    else if (mode === 'stock-asc') dataCopy.sort((a,b) => a.stock - b.stock);
+    else if (mode === 'sales-desc') dataCopy.sort((a,b) => b.totalSold - a.totalSold);
+    else if (mode === 'sales-asc') dataCopy.sort((a,b) => a.totalSold - b.totalSold);
+
+    document.getElementById('statsList').innerHTML = dataCopy.map(b => `
+      <div style="padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <div>
+          <strong style="color:#60a5fa;">جعبه ${b.number}</strong>
+          ${b.brand ? `<span style="color:#94a3b8;font-size:11px;margin-right:8px;">(${b.brand})</span>` : ''}
+          <div style="font-size:11px;color:#94a3b8;margin-top:3px;">${b.models.join('، ')}</div>
+        </div>
+        <div style="display:flex;gap:15px;font-size:13px;">
+          <div>موجودی: <strong style="color:#34d399;">${b.stock}</strong></div>
+          <div>فروش: <strong style="color:#f472b6;">${b.totalSold}</strong></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ============ LOG ============
+  function renderLog() {
+    const filter = document.getElementById('logFilter').value;
+    const search = document.getElementById('logSearch').value.toLowerCase();
+    const list = document.getElementById('logList');
+
+    let filtered = logs.filter(l => {
+      if (filter && l.type !== filter) return false;
+      if (search && !l.info.toLowerCase().includes(search)) return false;
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📜</div><p>لاگی ثبت نشده</p></div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map(l => {
+      const d = new Date(l.date);
+      const typeClass = l.type === 'sale' ? 'log-sale' : (l.type === 'recharge' ? 'log-recharge' : 'log-sale');
+      const typeLabel = l.type === 'sale' ? 'فروش' : (l.type === 'recharge' ? 'شارژ' : 'ویرایش');
+      return `
+        <div class="log-item">
+          <span class="log-type ${typeClass}">${typeLabel}</span>
+          <div class="log-info">${l.info}</div>
+          <div class="log-date">${faDateTime(d)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('logFilter').addEventListener('change', renderLog);
+  document.getElementById('logSearch').addEventListener('input', renderLog);
+
+  async function clearLog() {
+    if (!confirm('آیا از پاک کردن تمام لاگ‌ها مطمئن هستید؟')) return;
+    await api('/logs', 'DELETE');
+    await loadData();
+    toast('لاگ پاک شد');
+  }
+
+  // ============ RENDER ALL ============
+  function renderAll() {
+    renderBoxes();
+    renderBoxSelectors();
+    renderLog();
+  }
+
+  // ============ INIT ============
+  loadData();
+</script>
+</body>
+</html>
