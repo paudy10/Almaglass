@@ -210,7 +210,7 @@ app.get('/api/stats', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(process.env.PORT || 3000, '0.0.0.0', () =>{
   console.log(`
   ╔═══════════════════════════════════════════╗
   ║   📱 سیستم گلس آلما                       ║
